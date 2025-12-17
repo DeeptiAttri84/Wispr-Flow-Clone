@@ -1,73 +1,185 @@
-# React + TypeScript + Vite
+# 🎙️ Wispr Flow Clone
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A real-time push-to-talk speech-to-text desktop application
 
-Currently, two official plugins are available:
+## 📌 Project Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project is a functional clone of Wispr Flow, focused on implementing the core voice-to-text workflow rather than pixel-perfect UI replication.
 
-## React Compiler
+The application allows users to press and hold a button (or spacebar) to speak, streams microphone audio in real time to Deepgram, and displays live transcription inside a clean, minimal desktop interface built using Tauri + React.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### The goal of this project is to demonstrate:
+* Real-time audio streaming
+* Speech-to-text integration
+* Cross-platform desktop development
+* Clean architecture and maintainable code
 
-## Expanding the ESLint configuration
+## 🧰 Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Layer | Technology |
+|-------|-----------|
+| Desktop Framework | Tauri |
+| Frontend | React + Vite |
+| Language | TypeScript |
+| Audio Capture | Web Audio API |
+| Speech-to-Text | Deepgram Streaming API (WebSocket) |
+| OS Support | Windows · macOS · Linux |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## ✨ Core Features Implemented
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### ✅ Push-to-Talk Voice Input
+* Hold mouse button or Spacebar to start recording
+* Release to stop recording
+* Visual feedback when recording is active
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### ✅ Microphone Access & Audio Capture
+* Secure microphone permission handling
+* Audio captured using Web Audio API
+* Converted to 16-bit PCM for Deepgram compatibility
+
+### ✅ Real-Time Transcription
+* Live audio streaming via WebSocket
+* Near real-time transcription from Deepgram
+* Incremental transcript updates
+
+### ✅ Display & Insert Text
+* Transcription displayed in a scrollable text area
+* Text can be inserted externally via clipboard copy or file download
+* Clean and readable formatting
+
+### ✅ Recording Controls
+* Hold-to-talk button
+* Spacebar shortcut
+* Reset transcription button
+
+### ✅ Utility Tools Panel
+* 📋 Copy transcript to clipboard
+* 💾 Download transcript as `.txt` file
+* ⌨️ Spacebar push-to-talk
+* 🎧 Live mic waveform indicator
+
+### ✅ Error Handling
+* Microphone access failure handling
+* WebSocket error logging
+* Safe cleanup on stop/reset
+
+## 📁 Project Structure
+
+```
+wispr-flow-clone/
+│
+├── src/                      # Frontend (React + Vite)
+│   ├── assets/
+│   │
+│   ├── audio/                # 🎧 Audio capture & streaming
+│   │   ├── recorder.ts       # Mic access + PCM conversion
+│   │   └── stream.ts         # Audio → Deepgram pipeline
+│   │
+│   ├── deepgram/             # 🌐 Speech-to-text integration
+│   │   └── client.ts         # Deepgram WebSocket client
+│   │
+│   ├── ui/                   # 🧩 UI components
+│   │   ├── PushToTalk.tsx    # Push-to-talk control
+│   │   └── ToolsPanel.tsx    # Copy / Download / Reset tools
+│   │
+│   ├── App.tsx               # App layout & state orchestration
+│   ├── App.css               # App-level styling
+│   ├── index.css             # Global styles (pastel bg, layout)
+│   └── main.tsx              # React entry point
+│
+├── src-tauri/                # 🦀 Tauri (Rust backend)
+│   ├── src/
+│   │   ├── main.rs           # Tauri app entry
+│   │   └── lib.rs            # (optional extensions)
+│   ├── icons/
+│   ├── capabilities/
+│   └── tauri.conf.json       # Tauri configuration
+│
+├── package.json
+├── vite.config.ts
+├── .env                      # Environment variables (Deepgram API key)
+└── README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🧱 Architecture & Code Quality
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Separation of Concerns
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Layer | Responsibility |
+|-------|---------------|
+| `ui/` | UI components (PushToTalk, ToolsPanel) |
+| `audio/recorder.ts` | Microphone access & PCM audio processing |
+| `audio/stream.ts` | Orchestrates audio → Deepgram flow |
+| `deepgram/client.ts` | WebSocket connection & transcription handling |
+
+Each module has a single, well-defined responsibility, ensuring clean and maintainable code.
+
+## 🖥️ UI Design
+
+* Pastel pink background
+* Two equal-height white cards:
+  * Left: Tools Panel
+  * Right: Transcription Interface
+* Rounded corners, soft shadows
+* Minimal, modern aesthetic inspired by Wispr Flow
+
+Focus was on usability and clarity, not pixel-perfect design.
+
+## 🚀 Setup & Run Instructions
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/your-username/wispr-flow-clone.git
+cd wispr-flow-clone
 ```
+
+### 2️⃣ Install Dependencies
+
+```bash
+npm install
+```
+
+### 3️⃣ Set Environment Variable
+
+Create a `.env` file in the project root:
+
+```env
+VITE_DEEPGRAM_API_KEY=your_deepgram_api_key_here
+```
+
+### 4️⃣ Run in Development Mode
+
+```bash
+npm run tauri:dev
+```
+
+## 🎬 Demo Video
+
+📹 A screen recording demonstrating:
+* Push-to-talk
+* Live transcription
+* Tools (copy, download, reset)
+
+(Host on Google Drive or YouTube as required)
+
+## ⚠️ Known Limitations
+
+* No speaker diarization
+* No language switching UI
+* Basic waveform (not frequency-accurate)
+* No production-level optimization
+
+These were intentionally out of scope per assignment instructions.
+
+## 🧠 Design Decisions
+
+* **Deepgram Streaming API** chosen for low latency and accuracy
+* **Tauri over Electron** for smaller bundle size and better performance
+* **Web Audio API** used for fine-grained audio control
+* **Manual audio streaming** instead of pre-recorded blobs for real-time behavior
+
+
+---
+
+⭐ If you found this project helpful, please consider giving it a star!
