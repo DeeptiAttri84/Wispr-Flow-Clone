@@ -153,16 +153,6 @@ VITE_DEEPGRAM_API_KEY=your_deepgram_api_key_here
 ```bash
 npm run tauri:dev
 ```
-
-## 🎬 Demo Video
-
-📹 A screen recording demonstrating:
-* Push-to-talk
-* Live transcription
-* Tools (copy, download, reset)
-
-(Host on Google Drive or YouTube as required)
-
 ## ⚠️ Known Limitations
 
 * No speaker diarization
